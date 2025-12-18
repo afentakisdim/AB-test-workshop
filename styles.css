@@ -937,11 +937,10 @@ h2 {
 .auth-form,
 .test-form {
     max-width: 500px;
-    margin: 0 auto;
 }
 
 .form-group {
-    margin-bottom: var(--space-lg);
+    margin-bottom: var(--space-md);
 }
 
 .form-group label {
@@ -954,7 +953,7 @@ h2 {
 }
 
 .auth-form-card .form-group {
-    margin-bottom: var(--space-xl);
+    margin-bottom: var(--space-md);
 }
 
 .auth-form-card .form-group label {
@@ -2105,6 +2104,12 @@ h2 {
     
     .tests-grid {
         grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    }
+    
+    .auth-form-card-inner .auth-form {
+        max-width: 100%;
+        margin: 0;
+        width: 100%;
     }
 }
 
