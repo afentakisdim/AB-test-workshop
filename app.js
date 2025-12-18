@@ -18,7 +18,8 @@ const ROUTES = {
     '/login': 'login',
     '/register': 'register',
     '/create': 'create',
-    '/dashboard': 'dashboard'
+    '/dashboard': 'dashboard',
+    '/share': 'share'
 };
 
 // ============================================
@@ -294,6 +295,16 @@ function hasUserVoted(testId, userId) {
 }
 
 /**
+ * Get a test by ID
+ * @param {string} testId - Test ID
+ * @returns {Object|null} Test object or null
+ */
+function getTestById(testId) {
+    const tests = getTests();
+    return tests.find(t => t.id === testId) || null;
+}
+
+/**
  * Get vote counts for a test
  * @param {Object} test - Test object
  * @returns {Object} Object with countA and countB
@@ -304,6 +315,75 @@ function getVoteCounts(test) {
         countA: votes.filter(v => v === 'A').length,
         countB: votes.filter(v => v === 'B').length
     };
+}
+
+/**
+ * Generate a shareable link for a test
+ * @param {Object} test - Test object
+ * @returns {string} Shareable URL
+ */
+function generateShareLink(test) {
+    // Encode test data as base64 JSON in URL
+    const testData = {
+        title: test.title,
+        imageA: test.imageA,
+        imageB: test.imageB
+    };
+    const encoded = btoa(JSON.stringify(testData));
+    const baseUrl = window.location.origin + window.location.pathname;
+    return `${baseUrl}#/share?data=${encodeURIComponent(encoded)}`;
+}
+
+/**
+ * Import test from shareable link
+ * @param {string} encodedData - Base64 encoded test data
+ * @returns {Object} Result object with success status and test/message
+ */
+function importSharedTest(encodedData) {
+    try {
+        const decoded = JSON.parse(atob(encodedData));
+        
+        // Validate test data
+        if (!decoded.title || !decoded.imageA || !decoded.imageB) {
+            return { success: false, message: 'Invalid test data' };
+        }
+        
+        // Check if test already exists (by title and images)
+        const existingTests = getTests();
+        const duplicate = existingTests.find(t => 
+            t.title === decoded.title && 
+            t.imageA === decoded.imageA && 
+            t.imageB === decoded.imageB
+        );
+        
+        if (duplicate) {
+            return { success: false, message: 'This test already exists', test: duplicate };
+        }
+        
+        // Create new test with imported data
+        // Use current user ID or generate a temporary one
+        const currentUser = getCurrentUser();
+        const userId = currentUser ? currentUser.id : 'shared_' + generateId();
+        
+        const newTest = {
+            id: generateId(),
+            userId: userId,
+            title: decoded.title,
+            imageA: decoded.imageA,
+            imageB: decoded.imageB,
+            votes: {},
+            shared: true // Mark as shared/imported
+        };
+        
+        const tests = getTests();
+        tests.push(newTest);
+        saveTests(tests);
+        
+        return { success: true, test: newTest };
+    } catch (error) {
+        console.error('Error importing shared test:', error);
+        return { success: false, message: 'Failed to import test data' };
+    }
 }
 
 // ============================================
@@ -451,7 +531,9 @@ function navigateTo(path) {
  */
 function handleRoute() {
     const hash = window.location.hash.slice(1) || '/';
-    const routeName = ROUTES[hash] || 'browse';
+    // Extract route path without query string (hash routes have query in hash)
+    const routePath = hash.split('?')[0];
+    const routeName = ROUTES[routePath] || 'browse';
     
     // Protected routes require authentication
     const protectedRoutes = ['create', 'dashboard'];
@@ -468,6 +550,20 @@ function handleRoute() {
     
     showView(`${routeName}-view`);
     updateNavigation();
+    
+    // Handle share route with query parameters (in hash)
+    if (routeName === 'share') {
+        const queryPart = hash.split('?')[1] || '';
+        const urlParams = new URLSearchParams(queryPart);
+        const data = urlParams.get('data');
+        if (data) {
+            handleSharedTest(data);
+        } else {
+            showError('Invalid share link');
+            navigateTo('/');
+        }
+        return;
+    }
     
     // Load view-specific data
     switch(routeName) {
@@ -523,7 +619,18 @@ function renderBrowseView() {
         
         return `
             <article class="test-card" role="listitem">
-                <h3>${escapeHtml(test.title)}</h3>
+                <div class="test-card-header">
+                    <h3>${escapeHtml(test.title)}</h3>
+                    <button class="share-button" data-test-id="${test.id}" aria-label="Share this test" title="Share test">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="18" cy="5" r="3"></circle>
+                            <circle cx="6" cy="12" r="3"></circle>
+                            <circle cx="18" cy="19" r="3"></circle>
+                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                        </svg>
+                    </button>
+                </div>
                 <div class="test-images">
                     <div class="test-image-wrapper">
                         <img src="${escapeHtml(test.imageA)}" alt="Option A for ${escapeHtml(test.title)}" class="test-image" onerror="this.parentElement.innerHTML='<span class=\\'preview-placeholder\\'>Image failed to load</span>'">
@@ -564,6 +671,11 @@ function renderBrowseView() {
             button.addEventListener('click', handleVote);
         });
     }
+    
+    // Attach share button handlers
+    container.querySelectorAll('.share-button').forEach(button => {
+        button.addEventListener('click', handleShare);
+    });
 }
 
 /**
@@ -595,7 +707,18 @@ function renderDashboardView() {
         
         return `
             <article class="dashboard-card" role="listitem">
-                <h3>${escapeHtml(test.title)}</h3>
+                <div class="test-card-header">
+                    <h3>${escapeHtml(test.title)}</h3>
+                    <button class="share-button" data-test-id="${test.id}" aria-label="Share this test" title="Share test">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="18" cy="5" r="3"></circle>
+                            <circle cx="6" cy="12" r="3"></circle>
+                            <circle cx="18" cy="19" r="3"></circle>
+                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                        </svg>
+                    </button>
+                </div>
                 <div class="test-images">
                     <div class="test-image-wrapper">
                         <img src="${escapeHtml(test.imageA)}" alt="Option A for ${escapeHtml(test.title)}" class="test-image" onerror="this.parentElement.innerHTML='<span class=\\'preview-placeholder\\'>Image failed to load</span>'">
@@ -619,6 +742,11 @@ function renderDashboardView() {
             </article>
         `;
     }).join('');
+    
+    // Attach share button handlers
+    container.querySelectorAll('.share-button').forEach(button => {
+        button.addEventListener('click', handleShare);
+    });
 }
 
 /**
@@ -823,6 +951,89 @@ function handleVote(e) {
     } else {
         showError(result.message);
         button.disabled = false;
+    }
+}
+
+/**
+ * Handle share button click
+ */
+function handleShare(e) {
+    e.stopPropagation();
+    const button = e.currentTarget;
+    const testId = button.dataset.testId;
+    const test = getTestById(testId);
+    
+    if (!test) {
+        showError('Test not found');
+        return;
+    }
+    
+    const shareLink = generateShareLink(test);
+    
+    // Copy to clipboard
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareLink).then(() => {
+            showError(''); // Clear any errors
+            // Show success message (reusing error message area for now)
+            const errorEl = document.getElementById('error-message');
+            if (errorEl) {
+                errorEl.textContent = 'Share link copied to clipboard!';
+                errorEl.classList.remove('hidden');
+                errorEl.style.backgroundColor = 'rgba(52, 199, 89, 0.1)';
+                errorEl.style.borderColor = '#34c759';
+                errorEl.style.color = '#34c759';
+                setTimeout(() => {
+                    errorEl.classList.add('hidden');
+                    errorEl.style.backgroundColor = '';
+                    errorEl.style.borderColor = '';
+                    errorEl.style.color = '';
+                }, 3000);
+            }
+        }).catch(() => {
+            // Fallback: show link in prompt
+            prompt('Copy this link to share:', shareLink);
+        });
+    } else {
+        // Fallback for older browsers
+        prompt('Copy this link to share:', shareLink);
+    }
+}
+
+/**
+ * Handle shared test import
+ */
+function handleSharedTest(encodedData) {
+    showView('share-view');
+    const shareContent = document.getElementById('share-content');
+    
+    if (!shareContent) return;
+    
+    shareContent.innerHTML = '<p>Importing test...</p>';
+    
+    const result = importSharedTest(encodedData);
+    
+    if (result.success) {
+        shareContent.innerHTML = `
+            <p>Test imported successfully!</p>
+            <a href="#/" class="btn btn-primary">View All Tests</a>
+        `;
+        // Refresh browse view after a short delay
+        setTimeout(() => {
+            navigateTo('/');
+        }, 2000);
+    } else {
+        if (result.test) {
+            // Test already exists
+            shareContent.innerHTML = `
+                <p>This test already exists in your collection.</p>
+                <a href="#/" class="btn btn-primary">View All Tests</a>
+            `;
+        } else {
+            shareContent.innerHTML = `
+                <p>Error: ${result.message || 'Failed to import test'}</p>
+                <a href="#/" class="btn btn-primary">Go to Home</a>
+            `;
+        }
     }
 }
 

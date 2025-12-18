@@ -569,12 +569,46 @@ h2 {
     border-color: var(--border);
 }
 
+.test-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-lg);
+    gap: var(--space-md);
+}
+
 .test-card h3 {
     font-size: var(--font-size-xl);
-    margin-bottom: var(--space-lg);
+    margin-bottom: 0;
     color: var(--text-primary);
     font-weight: 600;
     letter-spacing: -0.02em;
+    flex: 1;
+}
+
+.test-card .share-button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: var(--space-xs);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-base);
+    flex-shrink: 0;
+}
+
+.test-card .share-button:hover {
+    color: var(--accent);
+    background-color: var(--bg-hover);
+}
+
+.test-card .share-button:focus {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+    color: var(--accent);
 }
 
 .test-card .test-images {
@@ -820,12 +854,46 @@ h2 {
     transform: translateY(-2px);
 }
 
+.dashboard-card .test-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-lg);
+    gap: var(--space-md);
+}
+
 .dashboard-card h3 {
     font-size: var(--font-size-xl);
-    margin-bottom: var(--space-lg);
+    margin-bottom: 0;
     color: var(--text-primary);
     font-weight: 600;
     letter-spacing: -0.02em;
+    flex: 1;
+}
+
+.dashboard-card .share-button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: var(--space-xs);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-base);
+    flex-shrink: 0;
+}
+
+.dashboard-card .share-button:hover {
+    color: var(--accent);
+    background-color: var(--bg-hover);
+}
+
+.dashboard-card .share-button:focus {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+    color: var(--accent);
 }
 
 .dashboard-card .stats {
