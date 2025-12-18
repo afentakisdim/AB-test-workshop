@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A/B Test Voting Application">
+    <title>A/B Test Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Skip link for keyboard navigation -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Navigation -->
+    <nav class="main-nav" role="navigation" aria-label="Main navigation">
+        <div class="nav-container">
+            <a href="#/" class="nav-logo" aria-label="Home">A/B Tests</a>
+            <ul class="nav-menu" role="menubar">
+                <li role="none">
+                    <a href="#/" class="nav-link" role="menuitem" data-route="/">Browse Tests</a>
+                </li>
+                <li role="none" id="create-nav-item" class="hidden">
+                    <a href="#/create" class="nav-link" role="menuitem" data-route="/create">Create Test</a>
+                </li>
+                <li role="none" id="dashboard-nav-item" class="hidden">
+                    <a href="#/dashboard" class="nav-link" role="menuitem" data-route="/dashboard">My Tests</a>
+                </li>
+                <li role="none" id="login-nav-item">
+                    <a href="#/login" class="nav-link" role="menuitem" data-route="/login">Login</a>
+                </li>
+                <li role="none" id="register-nav-item">
+                    <a href="#/register" class="nav-link" role="menuitem" data-route="/register">Register</a>
+                </li>
+                <li role="none" id="logout-nav-item" class="hidden">
+                    <button class="nav-link nav-button" role="menuitem" id="logout-btn" aria-label="Logout">Logout</button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main content area -->
+    <main id="main-content" role="main">
+        <!-- Loading state -->
+        <div id="loading" class="loading hidden" aria-live="polite" aria-label="Loading">
+            <div class="spinner" aria-hidden="true"></div>
+            <span>Loading...</span>
+        </div>
+
+        <!-- Error message area -->
+        <div id="error-message" class="error-message hidden" role="alert" aria-live="assertive"></div>
+
+        <!-- Route views -->
+        <div id="app-content">
+            <!-- Login Page -->
+            <section id="login-view" class="view hidden" aria-labelledby="login-heading">
+                <h1 id="login-heading">Login</h1>
+                <form id="login-form" class="auth-form" novalidate aria-label="Login form">
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <input 
+                            type="email" 
+                            id="login-email" 
+                            name="email" 
+                            required 
+                            autocomplete="email"
+                            aria-required="true"
+                            aria-describedby="login-email-error"
+                        >
+                        <span id="login-email-error" class="error-text" role="alert" aria-live="polite"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input 
+                            type="password" 
+                            id="login-password" 
+                            name="password" 
+                            required 
+                            autocomplete="current-password"
+                            aria-required="true"
+                            aria-describedby="login-password-error"
+                        >
+                        <span id="login-password-error" class="error-text" role="alert" aria-live="polite"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                    <p class="form-footer">
+                        Don't have an account? <a href="#/register">Register here</a>
+                    </p>
+                </form>
+            </section>
+
+            <!-- Register Page -->
+            <section id="register-view" class="view hidden" aria-labelledby="register-heading">
+                <h1 id="register-heading">Register</h1>
+                <form id="register-form" class="auth-form" novalidate aria-label="Register form">
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <input 
+                            type="email" 
+                            id="register-email" 
+                            name="email" 
+                            required 
+                            autocomplete="email"
+                            aria-required="true"
+                            aria-describedby="register-email-error"
+                        >
+                        <span id="register-email-error" class="error-text" role="alert" aria-live="polite"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password</label>
+                        <input 
+                            type="password" 
+                            id="register-password" 
+                            name="password" 
+                            required 
+                            autocomplete="new-password"
+                            minlength="6"
+                            aria-required="true"
+                            aria-describedby="register-password-error register-password-help"
+                        >
+                        <span id="register-password-help" class="help-text">Password must be at least 6 characters</span>
+                        <span id="register-password-error" class="error-text" role="alert" aria-live="polite"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password-confirm">Confirm Password</label>
+                        <input 
+                            type="password" 
+                            id="register-password-confirm" 
+                            name="passwordConfirm" 
+                            required 
+                            autocomplete="new-password"
+                            aria-required="true"
+                            aria-describedby="register-password-confirm-error"
+                        >
+                        <span id="register-password-confirm-error" class="error-text" role="alert" aria-live="polite"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                    <p class="form-footer">
+                        Already have an account? <a href="#/login">Login here</a>
+                    </p>
+                </form>
+            </section>
+
+            <!-- Test Browser Page -->
+            <section id="browse-view" class="view hidden" aria-labelledby="browse-heading">
+                <h1 id="browse-heading">Browse A/B Tests</h1>
+                <div id="tests-grid" class="tests-grid" role="list" aria-label="A/B tests">
+                    <!-- Tests will be dynamically inserted here -->
+                </div>
+                <div id="no-tests" class="empty-state hidden">
+                    <p>No tests available yet.</p>
+                </div>
+            </section>
+
+            <!-- Test Creation Page -->
+            <section id="create-view" class="view hidden" aria-labelledby="create-heading">
+                <h1 id="create-heading">Create A/B Test</h1>
+                <form id="create-test-form" class="test-form" novalidate aria-label="Create test form">
+                    <div class="form-group">
+                        <label for="test-title">Test Title</label>
+                        <input 
+                            type="text" 
+                            id="test-title" 
+                            name="title" 
+                            required 
+                            aria-required="true"
+                            aria-describedby="test-title-error"
+                        >
+                        <span id="test-title-error" class="error-text" role="alert" aria-live="polite"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="test-image-a">Image A</label>
+                        <div class="image-input-group">
+                            <input 
+                                type="text" 
+                                id="test-image-a" 
+                                name="imageA" 
+                                placeholder="Enter image URL"
+                                required 
+                                aria-required="true"
+                                aria-describedby="test-image-a-error test-image-a-preview"
+                            >
+                            <span class="input-divider">or</span>
+                            <div 
+                                class="drop-zone" 
+                                id="drop-zone-a"
+                                role="button"
+                                tabindex="0"
+                                aria-label="Drop image file for Image A"
+                                aria-describedby="drop-zone-a-help"
+                            >
+                                <svg class="drop-zone-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                <span class="drop-zone-text">Drag & drop image or paste URL</span>
+                                <input 
+                                    type="file" 
+                                    id="file-input-a" 
+                                    class="file-input" 
+                                    accept="image/*"
+                                    aria-label="Select image file for Image A"
+                                >
+                                <span id="drop-zone-a-help" class="help-text">Click to upload file, or paste image URL here</span>
+                            </div>
+                        </div>
+                        <span id="test-image-a-error" class="error-text" role="alert" aria-live="polite"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="test-image-b">Image B</label>
+                        <div class="image-input-group">
+                            <input 
+                                type="text" 
+                                id="test-image-b" 
+                                name="imageB" 
+                                placeholder="Enter image URL"
+                                required 
+                                aria-required="true"
+                                aria-describedby="test-image-b-error test-image-b-preview"
+                            >
+                            <span class="input-divider">or</span>
+                            <div 
+                                class="drop-zone" 
+                                id="drop-zone-b"
+                                role="button"
+                                tabindex="0"
+                                aria-label="Drop image file for Image B"
+                                aria-describedby="drop-zone-b-help"
+                            >
+                                <svg class="drop-zone-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                <span class="drop-zone-text">Drag & drop image or paste URL</span>
+                                <input 
+                                    type="file" 
+                                    id="file-input-b" 
+                                    class="file-input" 
+                                    accept="image/*"
+                                    aria-label="Select image file for Image B"
+                                >
+                                <span id="drop-zone-b-help" class="help-text">Click to upload file, or paste image URL here</span>
+                            </div>
+                        </div>
+                        <span id="test-image-b-error" class="error-text" role="alert" aria-live="polite"></span>
+                    </div>
+                    <div class="preview-section">
+                        <h2>Preview</h2>
+                        <div class="preview-images">
+                            <div class="preview-item">
+                                <label>Image A</label>
+                                <div id="test-image-a-preview" class="image-preview" role="img" aria-label="Preview of Image A">
+                                    <span class="preview-placeholder">Enter URL to preview</span>
+                                </div>
+                            </div>
+                            <div class="preview-item">
+                                <label>Image B</label>
+                                <div id="test-image-b-preview" class="image-preview" role="img" aria-label="Preview of Image B">
+                                    <span class="preview-placeholder">Enter URL to preview</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Test</button>
+                </form>
+            </section>
+
+            <!-- My Tests Dashboard -->
+            <section id="dashboard-view" class="view hidden" aria-labelledby="dashboard-heading">
+                <h1 id="dashboard-heading">My Tests</h1>
+                <div id="dashboard-tests" class="dashboard-tests" role="list" aria-label="Your A/B tests">
+                    <!-- User's tests will be dynamically inserted here -->
+                </div>
+                <div id="no-user-tests" class="empty-state hidden">
+                    <p>You haven't created any tests yet.</p>
+                    <a href="#/create" class="btn btn-primary">Create Your First Test</a>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
+
