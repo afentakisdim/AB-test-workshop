@@ -31,6 +31,11 @@
     --focus: #FF5D47;
     --focus-ring: rgba(255, 93, 71, 0.2);
     
+    /* Additional variables for footer pill */
+    --background-elevated: rgba(255, 255, 255, 0.8);
+    --border-radius-pill: 999px;
+    --border-color: rgba(0, 0, 0, 0.1);
+    
     /* Spacing scale (using rem for accessibility) - Apple uses generous spacing */
     --space-xs: 0.5rem;
     --space-sm: 0.75rem;
@@ -2155,6 +2160,9 @@ h2 {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .footer-content {
@@ -2165,11 +2173,44 @@ h2 {
     flex-wrap: wrap;
 }
 
-.footer-text {
-    font-size: var(--font-size-sm);
+.footer-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
     color: var(--text-secondary);
+    font-size: 0.8125rem;
+    padding: 0.5rem 1rem;
+    background: var(--background-elevated);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: var(--border-radius-pill);
+    border: 0.5px solid var(--border-color);
+}
+
+.footer-text {
+    font-size: inherit;
+    color: inherit;
     margin: 0;
     font-weight: 400;
+}
+
+.footer-link {
+    color: #FF5D47;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all var(--transition-base);
+}
+
+.footer-link:hover {
+    color: #ff4a32;
+    text-decoration: underline;
+}
+
+.footer-link:focus {
+    outline: 2px solid rgba(255, 93, 71, 0.4);
+    outline-offset: 2px;
+    border-radius: 2px;
 }
 
 .footer-heart {
