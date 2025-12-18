@@ -716,6 +716,19 @@ function updateNavigation() {
     document.getElementById('login-nav-item').classList.toggle('hidden', isLoggedIn);
     document.getElementById('register-nav-item').classList.toggle('hidden', isLoggedIn);
     
+    // Update mobile menu items
+    const mobileCreate = document.getElementById('mobile-create-nav-item');
+    const mobileDashboard = document.getElementById('mobile-dashboard-nav-item');
+    const mobileProfile = document.getElementById('mobile-profile-nav-item');
+    const mobileLogin = document.getElementById('mobile-login-nav-item');
+    const mobileRegister = document.getElementById('mobile-register-nav-item');
+    
+    if (mobileCreate) mobileCreate.classList.toggle('hidden', !isLoggedIn);
+    if (mobileDashboard) mobileDashboard.classList.toggle('hidden', !isLoggedIn);
+    if (mobileProfile) mobileProfile.classList.toggle('hidden', !isLoggedIn);
+    if (mobileLogin) mobileLogin.classList.toggle('hidden', isLoggedIn);
+    if (mobileRegister) mobileRegister.classList.toggle('hidden', isLoggedIn);
+    
     // Close profile dropdown when navigation updates
     closeProfileDropdown();
 }
@@ -1834,6 +1847,9 @@ function init() {
     // Set up profile dropdown
     setupProfileDropdown();
     
+    // Set up mobile menu
+    setupMobileMenu();
+    
     // Set up login form
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
@@ -2087,6 +2103,111 @@ function closeProfileDropdown() {
     if (dropdown) {
         dropdown.classList.add('hidden');
     }
+}
+
+/**
+ * Toggle mobile menu
+ */
+function toggleMobileMenu() {
+    const burger = document.getElementById('nav-burger');
+    const mobileMenu = document.getElementById('nav-mobile-menu');
+    
+    if (!burger || !mobileMenu) return;
+    
+    const isExpanded = burger.getAttribute('aria-expanded') === 'true';
+    
+    if (isExpanded) {
+        closeMobileMenu();
+    } else {
+        burger.setAttribute('aria-expanded', 'true');
+        mobileMenu.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+/**
+ * Close mobile menu
+ */
+function closeMobileMenu() {
+    const burger = document.getElementById('nav-burger');
+    const mobileMenu = document.getElementById('nav-mobile-menu');
+    
+    if (burger) {
+        burger.setAttribute('aria-expanded', 'false');
+    }
+    if (mobileMenu) {
+        mobileMenu.classList.add('hidden');
+    }
+    document.body.style.overflow = '';
+}
+
+/**
+ * Setup mobile menu handlers
+ */
+function setupMobileMenu() {
+    const burger = document.getElementById('nav-burger');
+    const mobileMenu = document.getElementById('nav-mobile-menu');
+    const mobileLinks = mobileMenu?.querySelectorAll('.nav-mobile-link');
+    const mobileProfileBtn = document.getElementById('mobile-profile-btn');
+    const mobileLogoutBtn = document.getElementById('mobile-profile-logout-btn');
+    
+    if (burger) {
+        burger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleMobileMenu();
+        });
+    }
+    
+    // Close menu when clicking on overlay (outside menu content)
+    if (mobileMenu) {
+        mobileMenu.addEventListener('click', (e) => {
+            if (e.target === mobileMenu) {
+                closeMobileMenu();
+            }
+        });
+    }
+    
+    // Close menu when clicking on a link
+    if (mobileLinks) {
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                closeMobileMenu();
+            });
+        });
+    }
+    
+    // Setup mobile profile dropdown
+    if (mobileProfileBtn) {
+        mobileProfileBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const mobileDropdown = document.getElementById('mobile-profile-dropdown');
+            const isExpanded = mobileProfileBtn.getAttribute('aria-expanded') === 'true';
+            
+            if (isExpanded) {
+                mobileProfileBtn.setAttribute('aria-expanded', 'false');
+                if (mobileDropdown) mobileDropdown.classList.add('hidden');
+            } else {
+                mobileProfileBtn.setAttribute('aria-expanded', 'true');
+                if (mobileDropdown) mobileDropdown.classList.remove('hidden');
+            }
+        });
+    }
+    
+    if (mobileLogoutBtn) {
+        mobileLogoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeMobileMenu();
+            logoutUser();
+        });
+    }
+    
+    // Close mobile menu on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && mobileMenu && !mobileMenu.classList.contains('hidden')) {
+            closeMobileMenu();
+        }
+    });
 }
 
 /**

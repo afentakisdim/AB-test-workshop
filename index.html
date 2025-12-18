@@ -15,6 +15,11 @@
     <nav class="main-nav" role="navigation" aria-label="Main navigation">
         <div class="nav-container">
             <a href="#/" class="nav-logo" aria-label="Home">A/B Tests</a>
+            <button class="nav-burger" id="nav-burger" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span class="burger-line"></span>
+                <span class="burger-line"></span>
+                <span class="burger-line"></span>
+            </button>
             <ul class="nav-menu" role="menubar">
                 <li role="none">
                     <a href="#/" class="nav-link" role="menuitem" data-route="/">Browse Tests</a>
@@ -47,6 +52,32 @@
                     </div>
                 </li>
             </ul>
+            <!-- Mobile Menu Overlay -->
+            <div class="nav-mobile-menu hidden" id="nav-mobile-menu" role="menu">
+                <div class="nav-mobile-content">
+                    <a href="#/" class="nav-mobile-link" data-route="/" role="menuitem">Browse Tests</a>
+                    <a href="#/dashboard" class="nav-mobile-link hidden" id="mobile-dashboard-nav-item" data-route="/dashboard" role="menuitem">My Tests</a>
+                    <a href="#/create" class="nav-mobile-link nav-mobile-link-cta hidden" id="mobile-create-nav-item" data-route="/create" role="menuitem">Create Test</a>
+                    <a href="#/login" class="nav-mobile-link" id="mobile-login-nav-item" data-route="/login" role="menuitem">Login</a>
+                    <a href="#/register" class="nav-mobile-link" id="mobile-register-nav-item" data-route="/register" role="menuitem">Register</a>
+                    <div class="nav-mobile-profile hidden" id="mobile-profile-nav-item">
+                        <div class="nav-profile-wrapper">
+                            <button class="nav-profile-button" id="mobile-profile-btn" aria-label="User profile menu" aria-expanded="false" aria-haspopup="true">
+                                <div class="nav-profile-avatar">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                </div>
+                                <span>Profile</span>
+                            </button>
+                            <div class="nav-profile-dropdown hidden" id="mobile-profile-dropdown" role="menu">
+                                <button class="nav-profile-dropdown-item" id="mobile-profile-logout-btn" role="menuitem">Logout</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -400,6 +431,47 @@
             </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="main-footer" role="contentinfo">
+        <div class="footer-container">
+            <div class="footer-content">
+                <p class="footer-text">An AI Workshop Project — Handcrafted with</p>
+                <div class="footer-heart">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="21" viewBox="0 0 157 138" fill="none" aria-hidden="true">
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 67.4697 31.1527)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 89.96 28.1936)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 92.9307 50.6076)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 70.4385 53.5664)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 73.4072 75.9811)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 95.8984 73.0222)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 112.449 25.2348)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 86.9922 5.77917)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 109.483 2.82034)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 115.418 47.649)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 134.94 22.2756)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 137.906 44.6902)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 118.387 70.0634)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 98.8672 95.4373)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 44.9824 34.1116)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 47.9482 56.5259)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 50.918 78.9402)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 22.4902 37.0697)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 42.0107 11.6966)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 19.5215 14.6555)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 25.46 59.4841)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.47881" rx="8.50636" ry="8.47881" transform="matrix(0.991478 -0.130275 0.131471 0.99132 0 40.029)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 2.97266 62.4432)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 28.4287 81.8981)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 53.8857 101.355)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 76.376 98.3959)" fill="#FF5D47"/>
+                        <ellipse cx="8.50636" cy="8.4788" rx="8.50636" ry="8.4788" transform="matrix(0.991456 -0.13044 0.131304 0.991342 79.3457 120.81)" fill="#FF5D47"/>
+                    </svg>
+                </div>
+                <p class="footer-text">by Desquared</p>
+            </div>
+        </div>
+    </footer>
 
     <script src="app.js"></script>
 </body>
