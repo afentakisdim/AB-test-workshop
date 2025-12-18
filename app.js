@@ -198,6 +198,37 @@ function getCurrentUser() {
 }
 
 /**
+ * Get user by ID
+ * @param {string} userId - User ID
+ * @returns {Object|null} User object or null
+ */
+function getUserById(userId) {
+    if (!userId) return null;
+    const users = getUsers();
+    return users.find(u => u.id === userId) || null;
+}
+
+/**
+ * Get submitter display name (username part of email)
+ * @param {string} userId - User ID
+ * @returns {string} Formatted submitter info or "Anonymous"
+ */
+function getSubmitterInfo(userId) {
+    if (!userId || userId.startsWith('shared_')) {
+        return 'Submitted by Anonymous';
+    }
+    
+    const user = getUserById(userId);
+    if (!user || !user.email) {
+        return 'Submitted by Anonymous';
+    }
+    
+    const emailParts = user.email.split('@');
+    const username = emailParts[0] || 'Anonymous';
+    return `Submitted by ${username}`;
+}
+
+/**
  * Check if user is authenticated
  * @returns {boolean} True if logged in
  */
@@ -235,20 +266,29 @@ function createTest(title, imageA, imageB, userId) {
 }
 
 /**
- * Get all tests
+ * Get all tests (excluding deleted)
  * @returns {Array} Array of test objects
  */
 function getAllTests() {
-    return getTests();
+    return getTests().filter(test => !test.deleted);
 }
 
 /**
- * Get tests created by a specific user
+ * Get tests created by a specific user (excluding deleted)
  * @param {string} userId - User ID
  * @returns {Array} Array of test objects
  */
 function getUserTests(userId) {
-    return getTests().filter(test => test.userId === userId);
+    return getTests().filter(test => test.userId === userId && !test.deleted);
+}
+
+/**
+ * Get deleted tests created by a specific user
+ * @param {string} userId - User ID
+ * @returns {Array} Array of deleted test objects
+ */
+function getDeletedUserTests(userId) {
+    return getTests().filter(test => test.userId === userId && test.deleted === true);
 }
 
 /**
@@ -302,6 +342,92 @@ function hasUserVoted(testId, userId) {
 function getTestById(testId) {
     const tests = getTests();
     return tests.find(t => t.id === testId) || null;
+}
+
+/**
+ * Delete a test (soft delete - marks as deleted)
+ * @param {string} testId - Test ID
+ * @param {string} userId - User ID (must match test creator)
+ * @returns {Object} Result object with success status and message
+ */
+function deleteTest(testId, userId) {
+    const tests = getTests();
+    const testIndex = tests.findIndex(t => t.id === testId);
+    
+    if (testIndex === -1) {
+        return { success: false, message: 'Test not found' };
+    }
+    
+    const test = tests[testIndex];
+    
+    // Verify user owns the test
+    if (test.userId !== userId) {
+        return { success: false, message: 'You can only delete your own tests' };
+    }
+    
+    // Mark test as deleted (soft delete)
+    test.deleted = true;
+    test.deletedAt = Date.now();
+    saveTests(tests);
+    
+    return { success: true, message: 'Test deleted successfully' };
+}
+
+/**
+ * Restore a deleted test
+ * @param {string} testId - Test ID
+ * @param {string} userId - User ID (must match test creator)
+ * @returns {Object} Result object with success status and message
+ */
+function restoreTest(testId, userId) {
+    const tests = getTests();
+    const testIndex = tests.findIndex(t => t.id === testId);
+    
+    if (testIndex === -1) {
+        return { success: false, message: 'Test not found' };
+    }
+    
+    const test = tests[testIndex];
+    
+    // Verify user owns the test
+    if (test.userId !== userId) {
+        return { success: false, message: 'You can only restore your own tests' };
+    }
+    
+    // Restore test
+    test.deleted = false;
+    delete test.deletedAt;
+    saveTests(tests);
+    
+    return { success: true, message: 'Test restored successfully' };
+}
+
+/**
+ * Permanently delete a test
+ * @param {string} testId - Test ID
+ * @param {string} userId - User ID (must match test creator)
+ * @returns {Object} Result object with success status and message
+ */
+function permanentlyDeleteTest(testId, userId) {
+    const tests = getTests();
+    const testIndex = tests.findIndex(t => t.id === testId);
+    
+    if (testIndex === -1) {
+        return { success: false, message: 'Test not found' };
+    }
+    
+    const test = tests[testIndex];
+    
+    // Verify user owns the test
+    if (test.userId !== userId) {
+        return { success: false, message: 'You can only delete your own tests' };
+    }
+    
+    // Permanently remove test from array
+    tests.splice(testIndex, 1);
+    saveTests(tests);
+    
+    return { success: true, message: 'Test permanently deleted' };
 }
 
 /**
@@ -586,9 +712,12 @@ function updateNavigation() {
     // Show/hide navigation items
     document.getElementById('create-nav-item').classList.toggle('hidden', !isLoggedIn);
     document.getElementById('dashboard-nav-item').classList.toggle('hidden', !isLoggedIn);
-    document.getElementById('logout-nav-item').classList.toggle('hidden', !isLoggedIn);
+    document.getElementById('profile-nav-item').classList.toggle('hidden', !isLoggedIn);
     document.getElementById('login-nav-item').classList.toggle('hidden', isLoggedIn);
     document.getElementById('register-nav-item').classList.toggle('hidden', isLoggedIn);
+    
+    // Close profile dropdown when navigation updates
+    closeProfileDropdown();
 }
 
 // ============================================
@@ -601,7 +730,19 @@ function updateNavigation() {
 function renderBrowseView() {
     const container = document.getElementById('tests-grid');
     const noTestsEl = document.getElementById('no-tests');
+    const authCtaSection = document.getElementById('auth-cta-section');
     const tests = getAllTests();
+    const currentUser = getCurrentUser();
+    const isLoggedIn = !!currentUser;
+    
+    // Show/hide CTA section based on authentication
+    if (authCtaSection) {
+        if (isLoggedIn) {
+            authCtaSection.classList.add('hidden');
+        } else {
+            authCtaSection.classList.remove('hidden');
+        }
+    }
     
     if (tests.length === 0) {
         container.innerHTML = '';
@@ -610,7 +751,6 @@ function renderBrowseView() {
     }
     
     noTestsEl.classList.add('hidden');
-    const currentUser = getCurrentUser();
     const userId = currentUser ? currentUser.id : null;
     
     container.innerHTML = tests.map(test => {
@@ -620,7 +760,10 @@ function renderBrowseView() {
         return `
             <article class="test-card" role="listitem">
                 <div class="test-card-header">
-                    <h3>${escapeHtml(test.title)}</h3>
+                    <div class="test-title-group">
+                        <h3>${escapeHtml(test.title)}</h3>
+                        <p class="test-submitter">${escapeHtml(getSubmitterInfo(test.userId))}</p>
+                    </div>
                     <button class="share-button" data-test-id="${test.id}" aria-label="Share this test" title="Share test">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="18" cy="5" r="3"></circle>
@@ -706,18 +849,133 @@ function renderDashboardView() {
         const total = votes.countA + votes.countB;
         
         return `
-            <article class="dashboard-card" role="listitem">
+            <article class="dashboard-card" role="listitem" data-test-id="${test.id}">
+                <div class="test-card-content">
+                    <div class="test-card-header">
+                        <div class="test-title-group">
+                            <h3>${escapeHtml(test.title)}</h3>
+                            <p class="test-submitter">${escapeHtml(getSubmitterInfo(test.userId))}</p>
+                        </div>
+                        <div class="test-card-actions">
+                            <button class="share-button" data-test-id="${test.id}" aria-label="Share this test" title="Share test">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="18" cy="5" r="3"></circle>
+                                    <circle cx="6" cy="12" r="3"></circle>
+                                    <circle cx="18" cy="19" r="3"></circle>
+                                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                                </svg>
+                            </button>
+                            <button class="delete-button" data-test-id="${test.id}" aria-label="Delete this test" title="Delete test">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="test-images">
+                        <div class="test-image-wrapper">
+                            <img src="${escapeHtml(test.imageA)}" alt="Option A for ${escapeHtml(test.title)}" class="test-image" onerror="this.parentElement.innerHTML='<span class=\\'preview-placeholder\\'>Image failed to load</span>'">
+                            <span class="test-label">A</span>
+                        </div>
+                        <div class="test-image-wrapper">
+                            <img src="${escapeHtml(test.imageB)}" alt="Option B for ${escapeHtml(test.title)}" class="test-image" onerror="this.parentElement.innerHTML='<span class=\\'preview-placeholder\\'>Image failed to load</span>'">
+                            <span class="test-label">B</span>
+                        </div>
+                    </div>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <span class="stat-value">${votes.countA}</span>
+                            <span class="stat-label">Votes for A${total > 0 ? ` (${Math.round(votes.countA / total * 100)}%)` : ''}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">${votes.countB}</span>
+                            <span class="stat-label">Votes for B${total > 0 ? ` (${Math.round(votes.countB / total * 100)}%)` : ''}</span>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        `;
+    }).join('');
+    
+    // Attach share button handlers
+    container.querySelectorAll('.share-button').forEach(button => {
+        button.addEventListener('click', handleShare);
+    });
+    
+    // Attach delete button handlers
+    container.querySelectorAll('.delete-button').forEach(button => {
+        button.addEventListener('click', showDeleteModal);
+    });
+    
+    // Render deleted tests tab (only if deleted tab is active or will be shown)
+    renderDeletedTestsView();
+    updateDeletedTabCount();
+}
+
+/**
+ * Update deleted tests tab count badge
+ */
+function updateDeletedTabCount() {
+    const deletedTab = document.getElementById('deleted-tests-tab');
+    const currentUser = getCurrentUser();
+    
+    if (deletedTab && currentUser) {
+        const deletedTests = getDeletedUserTests(currentUser.id);
+        const count = deletedTests.length;
+        
+        // Remove existing badge if any
+        const existingBadge = deletedTab.querySelector('.tab-badge');
+        if (existingBadge) {
+            existingBadge.remove();
+        }
+        
+        // Add badge if there are deleted tests
+        if (count > 0) {
+            const badge = document.createElement('span');
+            badge.className = 'tab-badge';
+            badge.textContent = count;
+            deletedTab.appendChild(badge);
+        }
+    }
+}
+
+/**
+ * Render deleted tests view
+ */
+function renderDeletedTestsView() {
+    const container = document.getElementById('dashboard-deleted-tests');
+    const noDeletedTestsEl = document.getElementById('no-deleted-tests');
+    const currentUser = getCurrentUser();
+    
+    if (!currentUser || !container) {
+        return;
+    }
+    
+    const deletedTests = getDeletedUserTests(currentUser.id);
+    
+    if (deletedTests.length === 0) {
+        container.innerHTML = '';
+        if (noDeletedTestsEl) noDeletedTestsEl.classList.remove('hidden');
+        return;
+    }
+    
+    if (noDeletedTestsEl) noDeletedTestsEl.classList.add('hidden');
+    
+    container.innerHTML = deletedTests.map(test => {
+        const votes = getVoteCounts(test);
+        const total = votes.countA + votes.countB;
+        
+        return `
+            <article class="dashboard-card deleted-test-card" role="listitem" data-test-id="${test.id}">
                 <div class="test-card-header">
-                    <h3>${escapeHtml(test.title)}</h3>
-                    <button class="share-button" data-test-id="${test.id}" aria-label="Share this test" title="Share test">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="18" cy="5" r="3"></circle>
-                            <circle cx="6" cy="12" r="3"></circle>
-                            <circle cx="18" cy="19" r="3"></circle>
-                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-                        </svg>
-                    </button>
+                    <div class="test-title-group">
+                        <h3>${escapeHtml(test.title)}</h3>
+                        <p class="test-submitter">${escapeHtml(getSubmitterInfo(test.userId))}</p>
+                    </div>
                 </div>
                 <div class="test-images">
                     <div class="test-image-wrapper">
@@ -739,14 +997,26 @@ function renderDashboardView() {
                         <span class="stat-label">Votes for B${total > 0 ? ` (${Math.round(votes.countB / total * 100)}%)` : ''}</span>
                     </div>
                 </div>
+                <div class="deleted-test-actions">
+                    <button class="btn btn-restore" data-test-id="${test.id}">Restore</button>
+                    <button class="btn btn-delete-permanent" data-test-id="${test.id}">Delete Permanently</button>
+                </div>
             </article>
         `;
     }).join('');
     
-    // Attach share button handlers
-    container.querySelectorAll('.share-button').forEach(button => {
-        button.addEventListener('click', handleShare);
+    // Attach restore button handlers
+    container.querySelectorAll('.btn-restore').forEach(button => {
+        button.addEventListener('click', handleRestore);
     });
+    
+    // Attach permanent delete button handlers
+    container.querySelectorAll('.btn-delete-permanent').forEach(button => {
+        button.addEventListener('click', handlePermanentDelete);
+    });
+    
+    // Update tab count
+    updateDeletedTabCount();
 }
 
 /**
@@ -996,6 +1266,231 @@ function handleShare(e) {
     } else {
         // Fallback for older browsers
         prompt('Copy this link to share:', shareLink);
+    }
+}
+
+// Store the test ID to delete in a variable
+let testToDeleteId = null;
+
+/**
+ * Show delete confirmation modal
+ */
+function showDeleteModal(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const button = e.currentTarget;
+    const testId = button.dataset.testId;
+    const currentUser = getCurrentUser();
+    
+    if (!currentUser) {
+        showError('You must be logged in to delete tests');
+        return;
+    }
+    
+    const test = getTestById(testId);
+    if (!test) {
+        showError('Test not found');
+        return;
+    }
+    
+    // Verify user owns the test
+    if (test.userId !== currentUser.id) {
+        showError('You can only delete your own tests');
+        return;
+    }
+    
+    // Store test ID for deletion
+    testToDeleteId = testId;
+    
+    // Show modal
+    const modal = document.getElementById('delete-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        // Focus the cancel button for accessibility
+        const cancelBtn = document.getElementById('modal-delete-cancel');
+        if (cancelBtn) {
+            cancelBtn.focus();
+        }
+        // Prevent body scroll when modal is open
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+/**
+ * Hide delete confirmation modal
+ */
+function hideDeleteModal() {
+    const modal = document.getElementById('delete-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        testToDeleteId = null;
+        // Restore body scroll
+        document.body.style.overflow = '';
+        
+        // Reset confirm button state
+        const confirmBtn = document.getElementById('modal-delete-confirm');
+        if (confirmBtn) {
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = 'Yes, delete it';
+        }
+    }
+}
+
+/**
+ * Confirm delete (actually delete the test)
+ */
+function confirmDelete() {
+    if (!testToDeleteId) {
+        return;
+    }
+    
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+        showError('You must be logged in to delete tests');
+        hideDeleteModal();
+        return;
+    }
+    
+    const test = getTestById(testToDeleteId);
+    if (!test) {
+        showError('Test not found');
+        hideDeleteModal();
+        return;
+    }
+    
+    // Verify user owns the test
+    if (test.userId !== currentUser.id) {
+        showError('You can only delete your own tests');
+        hideDeleteModal();
+        return;
+    }
+    
+    const confirmBtn = document.getElementById('modal-delete-confirm');
+    if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = 'Deleting...';
+    }
+    
+    const result = deleteTest(testToDeleteId, currentUser.id);
+    
+    if (result.success) {
+        hideDeleteModal();
+        // Re-render dashboard view
+        renderDashboardView();
+        showError(''); // Clear any errors
+        // Show success message
+        const errorEl = document.getElementById('error-message');
+        if (errorEl) {
+            errorEl.textContent = 'Test deleted successfully';
+            errorEl.classList.remove('hidden');
+            errorEl.style.backgroundColor = 'rgba(52, 199, 89, 0.1)';
+            errorEl.style.borderColor = '#34c759';
+            errorEl.style.color = '#34c759';
+            setTimeout(() => {
+                errorEl.classList.add('hidden');
+                errorEl.style.backgroundColor = '';
+                errorEl.style.borderColor = '';
+                errorEl.style.color = '';
+            }, 3000);
+        }
+    } else {
+        showError(result.message);
+        if (confirmBtn) {
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = 'Yes, delete it';
+        }
+    }
+}
+
+/**
+ * Handle restore button click
+ */
+function handleRestore(e) {
+    e.stopPropagation();
+    const button = e.currentTarget;
+    const testId = button.dataset.testId;
+    const currentUser = getCurrentUser();
+    
+    if (!currentUser) {
+        showError('You must be logged in to restore tests');
+        return;
+    }
+    
+    const result = restoreTest(testId, currentUser.id);
+    
+    if (result.success) {
+        renderDashboardView();
+        showError('');
+        const errorEl = document.getElementById('error-message');
+        if (errorEl) {
+            errorEl.textContent = 'Test restored successfully';
+            errorEl.classList.remove('hidden');
+            errorEl.style.backgroundColor = 'rgba(52, 199, 89, 0.1)';
+            errorEl.style.borderColor = '#34c759';
+            errorEl.style.color = '#34c759';
+            setTimeout(() => {
+                errorEl.classList.add('hidden');
+                errorEl.style.backgroundColor = '';
+                errorEl.style.borderColor = '';
+                errorEl.style.color = '';
+            }, 3000);
+        }
+    } else {
+        showError(result.message);
+    }
+}
+
+/**
+ * Handle permanent delete button click
+ */
+function handlePermanentDelete(e) {
+    e.stopPropagation();
+    const button = e.currentTarget;
+    const testId = button.dataset.testId;
+    const currentUser = getCurrentUser();
+    
+    if (!currentUser) {
+        showError('You must be logged in to delete tests');
+        return;
+    }
+    
+    const test = getTestById(testId);
+    if (!test) {
+        showError('Test not found');
+        return;
+    }
+    
+    // Confirm permanent deletion
+    const confirmed = confirm(`Are you sure you want to permanently delete "${test.title}"? This action cannot be undone.`);
+    
+    if (!confirmed) {
+        return;
+    }
+    
+    button.disabled = true;
+    
+    const result = permanentlyDeleteTest(testId, currentUser.id);
+    
+    if (result.success) {
+        renderDashboardView();
+        showError('');
+        const errorEl = document.getElementById('error-message');
+        if (errorEl) {
+            errorEl.textContent = 'Test permanently deleted';
+            errorEl.classList.remove('hidden');
+            errorEl.style.backgroundColor = 'rgba(52, 199, 89, 0.1)';
+            errorEl.style.borderColor = '#34c759';
+            errorEl.style.color = '#34c759';
+            setTimeout(() => {
+                errorEl.classList.add('hidden');
+                errorEl.style.backgroundColor = '';
+                errorEl.style.borderColor = '';
+                errorEl.style.color = '';
+            }, 3000);
+        }
+    } else {
+        showError(result.message);
+        button.disabled = false;
     }
 }
 
@@ -1336,11 +1831,8 @@ function init() {
         });
     });
     
-    // Set up logout button
-    const logoutBtn = document.getElementById('logout-btn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', logoutUser);
-    }
+    // Set up profile dropdown
+    setupProfileDropdown();
     
     // Set up login form
     const loginForm = document.getElementById('login-form');
@@ -1461,8 +1953,179 @@ function init() {
     // Initialize navigation
     updateNavigation();
     
+    // Set up dashboard tabs
+    setupDashboardTabs();
+    
+    // Set up delete modal
+    setupDeleteModal();
+    
     // Handle initial route
     handleRoute();
+}
+
+/**
+ * Setup dashboard tab switching
+ */
+function setupDashboardTabs() {
+    const activeTab = document.getElementById('active-tests-tab');
+    const deletedTab = document.getElementById('deleted-tests-tab');
+    const activePanel = document.getElementById('active-tests-panel');
+    const deletedPanel = document.getElementById('deleted-tests-panel');
+    
+    if (activeTab && deletedTab && activePanel && deletedPanel) {
+        activeTab.addEventListener('click', () => {
+            activeTab.classList.add('active');
+            activeTab.setAttribute('aria-selected', 'true');
+            activePanel.classList.remove('hidden');
+            activePanel.classList.add('active');
+            
+            deletedTab.classList.remove('active');
+            deletedTab.setAttribute('aria-selected', 'false');
+            deletedPanel.classList.add('hidden');
+            deletedPanel.classList.remove('active');
+        });
+        
+        deletedTab.addEventListener('click', () => {
+            deletedTab.classList.add('active');
+            deletedTab.setAttribute('aria-selected', 'true');
+            deletedPanel.classList.remove('hidden');
+            deletedPanel.classList.add('active');
+            
+            activeTab.classList.remove('active');
+            activeTab.setAttribute('aria-selected', 'false');
+            activePanel.classList.add('hidden');
+            activePanel.classList.remove('active');
+            
+            // Refresh deleted tests view when switching to deleted tab
+            renderDeletedTestsView();
+        });
+    }
+}
+
+/**
+ * Setup delete modal handlers
+ */
+function setupDeleteModal() {
+    const modal = document.getElementById('delete-modal');
+    const confirmBtn = document.getElementById('modal-delete-confirm');
+    const cancelBtn = document.getElementById('modal-delete-cancel');
+    const overlay = modal?.querySelector('.modal-overlay');
+    
+    if (!modal) return;
+    
+    // Confirm button - delete the test
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            confirmDelete();
+        });
+    }
+    
+    // Cancel button - close modal
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            hideDeleteModal();
+        });
+    }
+    
+    // Close modal when clicking overlay (click on modal but not on modal-content)
+    modal.addEventListener('click', (e) => {
+        // Only close if clicking directly on the modal/overlay, not on modal-content
+        if (e.target === modal || e.target === overlay) {
+            hideDeleteModal();
+        }
+    });
+    
+    // Prevent modal content clicks from closing the modal
+    const modalContent = modal.querySelector('.modal-content');
+    if (modalContent) {
+        modalContent.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+    
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+            hideDeleteModal();
+        }
+    });
+}
+
+/**
+ * Toggle profile dropdown
+ */
+function toggleProfileDropdown() {
+    const profileBtn = document.getElementById('profile-btn');
+    const dropdown = document.getElementById('profile-dropdown');
+    
+    if (!profileBtn || !dropdown) return;
+    
+    const isExpanded = profileBtn.getAttribute('aria-expanded') === 'true';
+    
+    if (isExpanded) {
+        closeProfileDropdown();
+    } else {
+        profileBtn.setAttribute('aria-expanded', 'true');
+        dropdown.classList.remove('hidden');
+    }
+}
+
+/**
+ * Close profile dropdown
+ */
+function closeProfileDropdown() {
+    const profileBtn = document.getElementById('profile-btn');
+    const dropdown = document.getElementById('profile-dropdown');
+    
+    if (profileBtn) {
+        profileBtn.setAttribute('aria-expanded', 'false');
+    }
+    if (dropdown) {
+        dropdown.classList.add('hidden');
+    }
+}
+
+/**
+ * Setup profile dropdown handlers
+ */
+function setupProfileDropdown() {
+    const profileBtn = document.getElementById('profile-btn');
+    const logoutBtn = document.getElementById('profile-logout-btn');
+    
+    if (profileBtn) {
+        profileBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleProfileDropdown();
+        });
+    }
+    
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeProfileDropdown();
+            logoutUser();
+        });
+    }
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        const profileWrapper = document.querySelector('.nav-profile-wrapper');
+        if (profileWrapper && !profileWrapper.contains(e.target)) {
+            closeProfileDropdown();
+        }
+    });
+    
+    // Close dropdown on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeProfileDropdown();
+        }
+    });
 }
 
 // Start the application when DOM is ready

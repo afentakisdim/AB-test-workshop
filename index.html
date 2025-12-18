@@ -19,11 +19,11 @@
                 <li role="none">
                     <a href="#/" class="nav-link" role="menuitem" data-route="/">Browse Tests</a>
                 </li>
-                <li role="none" id="create-nav-item" class="hidden">
-                    <a href="#/create" class="nav-link" role="menuitem" data-route="/create">Create Test</a>
-                </li>
                 <li role="none" id="dashboard-nav-item" class="hidden">
                     <a href="#/dashboard" class="nav-link" role="menuitem" data-route="/dashboard">My Tests</a>
+                </li>
+                <li role="none" id="create-nav-item" class="hidden">
+                    <a href="#/create" class="nav-link nav-link-cta" role="menuitem" data-route="/create">Create Test</a>
                 </li>
                 <li role="none" id="login-nav-item">
                     <a href="#/login" class="nav-link" role="menuitem" data-route="/login">Login</a>
@@ -31,8 +31,20 @@
                 <li role="none" id="register-nav-item">
                     <a href="#/register" class="nav-link" role="menuitem" data-route="/register">Register</a>
                 </li>
-                <li role="none" id="logout-nav-item" class="hidden">
-                    <button class="nav-link nav-button" role="menuitem" id="logout-btn" aria-label="Logout">Logout</button>
+                <li role="none" id="profile-nav-item" class="hidden">
+                    <div class="nav-profile-wrapper">
+                        <button class="nav-profile-button" id="profile-btn" aria-label="User profile menu" aria-expanded="false" aria-haspopup="true">
+                            <div class="nav-profile-avatar">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                            </div>
+                        </button>
+                        <div class="nav-profile-dropdown hidden" id="profile-dropdown" role="menu">
+                            <button class="nav-profile-dropdown-item" id="profile-logout-btn" role="menuitem">Logout</button>
+                        </div>
+                    </div>
                 </li>
             </ul>
         </div>
@@ -52,97 +64,167 @@
         <!-- Route views -->
         <div id="app-content">
             <!-- Login Page -->
-            <section id="login-view" class="view hidden" aria-labelledby="login-heading">
-                <h1 id="login-heading">Login</h1>
-                <form id="login-form" class="auth-form" novalidate aria-label="Login form">
-                    <div class="form-group">
-                        <label for="login-email">Email</label>
-                        <input 
-                            type="email" 
-                            id="login-email" 
-                            name="email" 
-                            required 
-                            autocomplete="email"
-                            aria-required="true"
-                            aria-describedby="login-email-error"
-                        >
-                        <span id="login-email-error" class="error-text" role="alert" aria-live="polite"></span>
+            <section id="login-view" class="view hidden auth-split-view" aria-labelledby="login-heading">
+                <div class="auth-split-container">
+                    <!-- Main Card Container -->
+                    <div class="auth-split-left">
+                        <div class="auth-left-card-inner">
+                            <div class="auth-promo-content">
+                                <h2 class="auth-promo-heading">Convert your ideas into successful business.</h2>
+                                <div class="auth-promo-gradient"></div>
+                            </div>
+                        </div>
+                        <!-- Right Panel - Form (inside left card, spans both columns) -->
+                        <div class="auth-split-right">
+                            <div class="auth-form-card">
+                                <div class="auth-form-card-inner">
+                                <div class="auth-form-logo">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                    </svg>
+                                </div>
+                                <h1 id="login-heading" class="auth-form-heading">Login</h1>
+                                <p class="auth-form-subheading">Welcome back – Let's continue your journey</p>
+                                <form id="login-form" class="auth-form" novalidate aria-label="Login form">
+                                    <div class="form-group">
+                                        <label for="login-email">Your email</label>
+                                        <input 
+                                            type="email" 
+                                            id="login-email" 
+                                            name="email" 
+                                            required 
+                                            autocomplete="email"
+                                            aria-required="true"
+                                            aria-describedby="login-email-error"
+                                            placeholder="hi@example.com"
+                                        >
+                                        <span id="login-email-error" class="error-text" role="alert" aria-live="polite"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="login-password">Password</label>
+                                        <input 
+                                            type="password" 
+                                            id="login-password" 
+                                            name="password" 
+                                            required 
+                                            autocomplete="current-password"
+                                            aria-required="true"
+                                            aria-describedby="login-password-error"
+                                            placeholder="Enter your password"
+                                        >
+                                        <span id="login-password-error" class="error-text" role="alert" aria-live="polite"></span>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-auth-submit">Login</button>
+                                    <p class="form-footer">
+                                        Don't have an account? <a href="#/register">Register here</a>
+                                    </p>
+                                </form>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="login-password">Password</label>
-                        <input 
-                            type="password" 
-                            id="login-password" 
-                            name="password" 
-                            required 
-                            autocomplete="current-password"
-                            aria-required="true"
-                            aria-describedby="login-password-error"
-                        >
-                        <span id="login-password-error" class="error-text" role="alert" aria-live="polite"></span>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Login</button>
-                    <p class="form-footer">
-                        Don't have an account? <a href="#/register">Register here</a>
-                    </p>
-                </form>
+                </div>
             </section>
 
             <!-- Register Page -->
-            <section id="register-view" class="view hidden" aria-labelledby="register-heading">
-                <h1 id="register-heading">Register</h1>
-                <form id="register-form" class="auth-form" novalidate aria-label="Register form">
-                    <div class="form-group">
-                        <label for="register-email">Email</label>
-                        <input 
-                            type="email" 
-                            id="register-email" 
-                            name="email" 
-                            required 
-                            autocomplete="email"
-                            aria-required="true"
-                            aria-describedby="register-email-error"
-                        >
-                        <span id="register-email-error" class="error-text" role="alert" aria-live="polite"></span>
+            <section id="register-view" class="view hidden auth-split-view" aria-labelledby="register-heading">
+                <div class="auth-split-container">
+                    <!-- Main Card Container -->
+                    <div class="auth-split-left">
+                        <div class="auth-left-card-inner">
+                            <div class="auth-promo-content">
+                                <h2 class="auth-promo-heading">Convert your ideas into successful business.</h2>
+                                <div class="auth-promo-gradient"></div>
+                            </div>
+                        </div>
+                        <!-- Right Panel - Form (inside left card, spans both columns) -->
+                        <div class="auth-split-right">
+                            <div class="auth-form-card">
+                                <div class="auth-form-card-inner">
+                                <div class="auth-form-logo">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                    </svg>
+                                </div>
+                                <h1 id="register-heading" class="auth-form-heading">Get Started</h1>
+                                <p class="auth-form-subheading">Welcome to A/B Tests – Let's get started</p>
+                                <form id="register-form" class="auth-form" novalidate aria-label="Register form">
+                                    <div class="form-group">
+                                        <label for="register-email">Your email</label>
+                                        <input 
+                                            type="email" 
+                                            id="register-email" 
+                                            name="email" 
+                                            required 
+                                            autocomplete="email"
+                                            aria-required="true"
+                                            aria-describedby="register-email-error"
+                                            placeholder="hi@example.com"
+                                        >
+                                        <span id="register-email-error" class="error-text" role="alert" aria-live="polite"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="register-password">Create new password</label>
+                                        <input 
+                                            type="password" 
+                                            id="register-password" 
+                                            name="password" 
+                                            required 
+                                            autocomplete="new-password"
+                                            minlength="6"
+                                            aria-required="true"
+                                            aria-describedby="register-password-error register-password-help"
+                                            placeholder="Enter your password"
+                                        >
+                                        <span id="register-password-help" class="help-text">Password must be at least 6 characters</span>
+                                        <span id="register-password-error" class="error-text" role="alert" aria-live="polite"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="register-password-confirm">Confirm Password</label>
+                                        <input 
+                                            type="password" 
+                                            id="register-password-confirm" 
+                                            name="passwordConfirm" 
+                                            required 
+                                            autocomplete="new-password"
+                                            aria-required="true"
+                                            aria-describedby="register-password-confirm-error"
+                                            placeholder="Confirm your password"
+                                        >
+                                        <span id="register-password-confirm-error" class="error-text" role="alert" aria-live="polite"></span>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-auth-submit">Create new account</button>
+                                    <p class="form-footer">
+                                        Already have an account? <a href="#/login">Login</a>
+                                    </p>
+                                </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="register-password">Password</label>
-                        <input 
-                            type="password" 
-                            id="register-password" 
-                            name="password" 
-                            required 
-                            autocomplete="new-password"
-                            minlength="6"
-                            aria-required="true"
-                            aria-describedby="register-password-error register-password-help"
-                        >
-                        <span id="register-password-help" class="help-text">Password must be at least 6 characters</span>
-                        <span id="register-password-error" class="error-text" role="alert" aria-live="polite"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="register-password-confirm">Confirm Password</label>
-                        <input 
-                            type="password" 
-                            id="register-password-confirm" 
-                            name="passwordConfirm" 
-                            required 
-                            autocomplete="new-password"
-                            aria-required="true"
-                            aria-describedby="register-password-confirm-error"
-                        >
-                        <span id="register-password-confirm-error" class="error-text" role="alert" aria-live="polite"></span>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Register</button>
-                    <p class="form-footer">
-                        Already have an account? <a href="#/login">Login here</a>
-                    </p>
-                </form>
+                </div>
             </section>
 
             <!-- Test Browser Page -->
             <section id="browse-view" class="view hidden" aria-labelledby="browse-heading">
                 <h1 id="browse-heading">Browse A/B Tests</h1>
+                <div id="auth-cta-section" class="auth-cta-section hidden">
+                    <div class="auth-cta-left">
+                        <div class="auth-cta-promo">
+                            <h2 class="auth-cta-promo-heading">Convert your ideas into successful business.</h2>
+                            <div class="auth-cta-gradient"></div>
+                        </div>
+                    </div>
+                    <div class="auth-cta-right">
+                        <div class="auth-cta-content">
+                            <h2 class="auth-cta-heading">Start Creating Your A/B Tests</h2>
+                            <p class="auth-cta-description">Join our platform to create, share, and analyze A/B tests.</p>
+                            <div class="auth-cta-buttons">
+                                <a href="#/register" class="btn btn-cta-primary" data-route="/register">Get Started</a>
+                                <a href="#/login" class="btn btn-cta-secondary" data-route="/login">Login</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div id="tests-grid" class="tests-grid" role="list" aria-label="A/B tests">
                     <!-- Tests will be dynamically inserted here -->
                 </div>
@@ -267,12 +349,32 @@
             <!-- My Tests Dashboard -->
             <section id="dashboard-view" class="view hidden" aria-labelledby="dashboard-heading">
                 <h1 id="dashboard-heading">My Tests</h1>
-                <div id="dashboard-tests" class="dashboard-tests" role="list" aria-label="Your A/B tests">
-                    <!-- User's tests will be dynamically inserted here -->
+                <div class="dashboard-tabs" role="tablist" aria-label="Test categories">
+                    <button class="dashboard-tab active" id="active-tests-tab" role="tab" aria-selected="true" aria-controls="active-tests-panel" data-tab="active">Active Tests</button>
+                    <button class="dashboard-tab" id="deleted-tests-tab" role="tab" aria-selected="false" aria-controls="deleted-tests-panel" data-tab="deleted">Deleted Tests</button>
                 </div>
-                <div id="no-user-tests" class="empty-state hidden">
-                    <p>You haven't created any tests yet.</p>
-                    <a href="#/create" class="btn btn-primary">Create Your First Test</a>
+                <div id="active-tests-panel" class="dashboard-tab-panel active" role="tabpanel" aria-labelledby="active-tests-tab">
+                    <div id="dashboard-tests" class="dashboard-tests" role="list" aria-label="Your A/B tests">
+                        <!-- User's active tests will be dynamically inserted here -->
+                    </div>
+                    <div id="no-user-tests" class="empty-state hidden">
+                        <p>You haven't created any tests yet.</p>
+                        <a href="#/create" class="btn btn-primary btn-create-first">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            <span>Create Your First Test</span>
+                        </a>
+                    </div>
+                </div>
+                <div id="deleted-tests-panel" class="dashboard-tab-panel hidden" role="tabpanel" aria-labelledby="deleted-tests-tab">
+                    <div id="dashboard-deleted-tests" class="dashboard-tests" role="list" aria-label="Your deleted A/B tests">
+                        <!-- User's deleted tests will be dynamically inserted here -->
+                    </div>
+                    <div id="no-deleted-tests" class="empty-state hidden">
+                        <p>No deleted tests.</p>
+                    </div>
                 </div>
             </section>
 
@@ -285,6 +387,19 @@
             </section>
         </div>
     </main>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal hidden" role="dialog" aria-labelledby="delete-modal-title" aria-modal="true">
+        <div class="modal-overlay" data-modal-close></div>
+        <div class="modal-content">
+            <h2 id="delete-modal-title">Delete Test</h2>
+            <p class="modal-message">Do you really want to delete this test?</p>
+            <div class="modal-actions">
+                <button class="btn btn-delete-confirm" id="modal-delete-confirm">Yes, delete it</button>
+                <button class="btn btn-cancel" id="modal-delete-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
 
     <script src="app.js"></script>
 </body>
