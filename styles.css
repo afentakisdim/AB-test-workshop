@@ -1951,6 +1951,11 @@ h2 {
 
 /* Mobile adjustments for auth split view */
 @media (max-width: 767px) {
+    main {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    
     .auth-split-view {
         margin: 0;
         width: 100%;
@@ -1958,7 +1963,7 @@ h2 {
     }
     
     .auth-split-container {
-        padding: var(--space-lg) var(--space-md);
+        padding: var(--space-lg) 0;
         justify-content: center;
         align-items: center;
         width: 100%;
@@ -1966,7 +1971,7 @@ h2 {
     
     .auth-split-left {
         flex-direction: column;
-        padding: var(--space-lg);
+        padding: 16px;
         border-radius: 20px;
         gap: var(--space-lg);
         width: 100%;
@@ -1974,8 +1979,9 @@ h2 {
     }
     
     .auth-left-card-inner {
-        padding: var(--space-2xl) var(--space-xl);
+        padding: var(--space-2xl) 16px;
         border-radius: 16px;
+        width: 100%;
     }
     
     .auth-promo-heading {
@@ -1987,8 +1993,17 @@ h2 {
     }
     
     .auth-form-card-inner {
-        padding: var(--space-2xl) var(--space-xl);
+        padding: var(--space-2xl) 16px;
         border-radius: 16px;
+        width: 100%;
+    }
+    
+    .auth-form-card {
+        width: 100%;
+    }
+    
+    .auth-promo-content {
+        width: 100%;
     }
     
     .auth-form-logo {
