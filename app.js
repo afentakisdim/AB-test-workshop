@@ -1934,6 +1934,12 @@ function init() {
                 } else {
                     setFieldError(this.id, '');
                 }
+                
+                // Update preview section title
+                const previewTitle = document.getElementById('preview-title');
+                if (previewTitle) {
+                    previewTitle.textContent = value || 'Preview';
+                }
             });
         }
         

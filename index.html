@@ -267,97 +267,100 @@
             <!-- Test Creation Page -->
             <section id="create-view" class="view hidden" aria-labelledby="create-heading">
                 <h1 id="create-heading">Create A/B Test</h1>
-                <form id="create-test-form" class="test-form" novalidate aria-label="Create test form">
-                    <div class="form-group">
-                        <label for="test-title">Test Title</label>
-                        <input 
-                            type="text" 
-                            id="test-title" 
-                            name="title" 
-                            required 
-                            aria-required="true"
-                            aria-describedby="test-title-error"
-                        >
-                        <span id="test-title-error" class="error-text" role="alert" aria-live="polite"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="test-image-a">Image A</label>
-                        <div class="image-input-group">
+                <div class="create-view-container">
+                    <form id="create-test-form" class="test-form" novalidate aria-label="Create test form">
+                        <div class="form-group">
+                            <label for="test-title">Test Title</label>
                             <input 
                                 type="text" 
-                                id="test-image-a" 
-                                name="imageA" 
-                                placeholder="Enter image URL"
+                                id="test-title" 
+                                name="title" 
                                 required 
                                 aria-required="true"
-                                aria-describedby="test-image-a-error test-image-a-preview"
+                                aria-describedby="test-title-error"
                             >
-                            <span class="input-divider">or</span>
-                            <div 
-                                class="drop-zone" 
-                                id="drop-zone-a"
-                                role="button"
-                                tabindex="0"
-                                aria-label="Drop image file for Image A"
-                                aria-describedby="drop-zone-a-help"
-                            >
-                                <svg class="drop-zone-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                                </svg>
-                                <span class="drop-zone-text">Drag & drop image or paste URL</span>
-                                <input 
-                                    type="file" 
-                                    id="file-input-a" 
-                                    class="file-input" 
-                                    accept="image/*"
-                                    aria-label="Select image file for Image A"
-                                >
-                                <span id="drop-zone-a-help" class="help-text">Click to upload file, or paste image URL here</span>
-                            </div>
+                            <span id="test-title-error" class="error-text" role="alert" aria-live="polite"></span>
                         </div>
-                        <span id="test-image-a-error" class="error-text" role="alert" aria-live="polite"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="test-image-b">Image B</label>
-                        <div class="image-input-group">
-                            <input 
-                                type="text" 
-                                id="test-image-b" 
-                                name="imageB" 
-                                placeholder="Enter image URL"
-                                required 
-                                aria-required="true"
-                                aria-describedby="test-image-b-error test-image-b-preview"
-                            >
-                            <span class="input-divider">or</span>
-                            <div 
-                                class="drop-zone" 
-                                id="drop-zone-b"
-                                role="button"
-                                tabindex="0"
-                                aria-label="Drop image file for Image B"
-                                aria-describedby="drop-zone-b-help"
-                            >
-                                <svg class="drop-zone-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                                </svg>
-                                <span class="drop-zone-text">Drag & drop image or paste URL</span>
+                        <div class="form-group">
+                            <label for="test-image-a">Image A</label>
+                            <div class="image-input-group">
                                 <input 
-                                    type="file" 
-                                    id="file-input-b" 
-                                    class="file-input" 
-                                    accept="image/*"
-                                    aria-label="Select image file for Image B"
+                                    type="text" 
+                                    id="test-image-a" 
+                                    name="imageA" 
+                                    placeholder="Enter image URL"
+                                    required 
+                                    aria-required="true"
+                                    aria-describedby="test-image-a-error test-image-a-preview"
                                 >
-                                <span id="drop-zone-b-help" class="help-text">Click to upload file, or paste image URL here</span>
+                                <span class="input-divider">or</span>
+                                <div 
+                                    class="drop-zone" 
+                                    id="drop-zone-a"
+                                    role="button"
+                                    tabindex="0"
+                                    aria-label="Drop image file for Image A"
+                                    aria-describedby="drop-zone-a-help"
+                                >
+                                    <svg class="drop-zone-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                    <span class="drop-zone-text">Drag & drop image or paste URL</span>
+                                    <input 
+                                        type="file" 
+                                        id="file-input-a" 
+                                        class="file-input" 
+                                        accept="image/*"
+                                        aria-label="Select image file for Image A"
+                                    >
+                                    <span id="drop-zone-a-help" class="help-text">Click to upload file, or paste image URL here</span>
+                                </div>
                             </div>
+                            <span id="test-image-a-error" class="error-text" role="alert" aria-live="polite"></span>
                         </div>
-                        <span id="test-image-b-error" class="error-text" role="alert" aria-live="polite"></span>
-                    </div>
+                        <div class="form-group">
+                            <label for="test-image-b">Image B</label>
+                            <div class="image-input-group">
+                                <input 
+                                    type="text" 
+                                    id="test-image-b" 
+                                    name="imageB" 
+                                    placeholder="Enter image URL"
+                                    required 
+                                    aria-required="true"
+                                    aria-describedby="test-image-b-error test-image-b-preview"
+                                >
+                                <span class="input-divider">or</span>
+                                <div 
+                                    class="drop-zone" 
+                                    id="drop-zone-b"
+                                    role="button"
+                                    tabindex="0"
+                                    aria-label="Drop image file for Image B"
+                                    aria-describedby="drop-zone-b-help"
+                                >
+                                    <svg class="drop-zone-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                    <span class="drop-zone-text">Drag & drop image or paste URL</span>
+                                    <input 
+                                        type="file" 
+                                        id="file-input-b" 
+                                        class="file-input" 
+                                        accept="image/*"
+                                        aria-label="Select image file for Image B"
+                                    >
+                                    <span id="drop-zone-b-help" class="help-text">Click to upload file, or paste image URL here</span>
+                                </div>
+                            </div>
+                            <span id="test-image-b-error" class="error-text" role="alert" aria-live="polite"></span>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create Test</button>
+                    </form>
                     <div class="preview-section">
-                        <h2>Preview</h2>
+                        <h2 id="preview-title">Preview</h2>
                         <div class="preview-images">
                             <div class="preview-item">
                                 <label>Image A</label>
@@ -373,8 +376,7 @@
                             </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Create Test</button>
-                </form>
+                </div>
             </section>
 
             <!-- My Tests Dashboard -->

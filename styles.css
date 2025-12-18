@@ -939,6 +939,13 @@ h2 {
     max-width: 500px;
 }
 
+.create-view-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2xl);
+    align-items: start;
+}
+
 .form-group {
     margin-bottom: var(--space-md);
 }
@@ -1435,7 +1442,7 @@ h2 {
    ============================================ */
 
 .preview-section {
-    margin: var(--space-2xl) 0;
+    margin: 0;
     padding: var(--space-xl);
     background-color: var(--bg-secondary);
     border-radius: var(--radius-lg);
@@ -2110,6 +2117,21 @@ h2 {
         max-width: 100%;
         margin: 0;
         width: 100%;
+    }
+    
+    .create-view-container {
+        grid-template-columns: 1fr 400px;
+        gap: var(--space-3xl);
+    }
+    
+    .create-view-container .test-form {
+        max-width: 100%;
+    }
+    
+    .preview-section {
+        position: sticky;
+        top: calc(var(--space-2xl) + 60px);
+        align-self: start;
     }
 }
 
